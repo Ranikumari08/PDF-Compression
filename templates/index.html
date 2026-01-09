@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Compressor</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+
+        /* Result box */
+        .result-box {
+            background: #e6ffe6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            box-shadow: 0 0 6px #aaa;
+            width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            width: 420px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            border-radius: 4px;
+        }
+
+        /* Range-specific layout */
+        .range-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-row select {
+            width: 130px;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .disclaimer {
+            margin-top: 6px;
+            font-size: 13px;
+            color: black;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .result-box {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <script>
+        function showFileSize(input) {
+            const info = document.getElementById("fileSizeInfo");
+            if (input.files.length > 0) {
+                const sizeKB = (input.files[0].size / 1024).toFixed(2);
+                info.innerText = "Uploaded file size: " + sizeKB + " KB";
+            } else {
+                info.innerText = "";
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+<!-- RESULT SECTION -->
+{% if result %}
+<div class="result-box">
+    <strong>Compression Result</strong><br><br>
+
+    Original Size: {{ original }} KB<br>
+    Compressed Size: {{ compressed }} KB<br>
+    <strong>Reduced By: {{ percent }}%</strong><br><br>
+
+    <a href="/download/{{ filename }}">
+        <button type="button">Download PDF</button>
+    </a>
+</div>
+{% endif %}
+
+<div class="container">
+
+    <!-- LEFT: Normal Compression -->
+    <div class="box">
+        <h2>Normal Compression</h2>
+
+        <form action="/normal" method="post" enctype="multipart/form-data">
+            <input type="file" name="pdf" required><br><br>
+
+            <select name="level">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select><br><br>
+
+            <button type="submit">Compress</button>
+        </form>
+    </div>
+
+    <!-- RIGHT: Range Compression -->
+    <div class="box">
+        <h2>Range Compression</h2>
+
+        <p>
+            <strong>Target Ranges</strong><br>
+            High: 100–500 KB<br>
+            Medium: 500–1000 KB<br>
+            Low: 1–2 MB
+        </p>
+
+        <form action="/range" method="post" enctype="multipart/form-data">
+
+            <!-- Row 1 -->
+            <div class="range-row">
+                <input type="file" name="pdf" required onchange="showFileSize(this)">
+                
+                <select name="level">
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="file-info" id="fileSizeInfo"></div>
+
+            <!-- Row 3 -->
+            <div class="disclaimer">
+                Uploaded file must be greater than the selected range
+            </div>
+
+            <br>
+
+            <button type="submit">Compress</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>
